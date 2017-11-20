@@ -24,6 +24,7 @@ public class Board {
     }
 
     public void put(int nr, Colour colour) {
+        checkOutOfTurn(colour);
         checkValidColumn(nr);
 
         if (content.get(nr).size() >= NUMBER_OF_ROWS) {
@@ -33,15 +34,21 @@ public class Board {
         content.get(nr).add(colour);
     }
 
-    public Optional<Integer> getPlace(int column) {
-        checkValidColumn(column);
-        return Optional.of(content.get(column).size());
+    private void checkOutOfTurn(Colour colour) {
+        if (colour != getActivePlayer()) {
+            throw new IllegalArgumentException("Playing out of turn is not allowed.");
+        }
     }
 
     private void checkValidColumn(int column) {
         if (isInvalidColumn(column)) {
             throw new IllegalArgumentException("Please enter a positive number");
         }
+    }
+
+    public Optional<Integer> getPlace(int column) {
+        checkValidColumn(column);
+        return Optional.of(content.get(column).size());
     }
 
     private boolean isInvalidColumn(int column) {

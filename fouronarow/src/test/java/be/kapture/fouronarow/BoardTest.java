@@ -70,7 +70,7 @@ public class BoardTest {
     public void put_TooManyTimes() throws Exception {
         int column = 0;
 
-        IntStream.range(column,NUMBER_OF_ROWS).forEach(ignored -> board.put(column, RED));
+        IntStream.range(column,NUMBER_OF_ROWS).forEach(ignored -> board.put(column, board.getActivePlayer()));
 
         assertThatCode(() -> board.put(column, RED)).isInstanceOf(IllegalArgumentException.class);
     }
@@ -144,7 +144,7 @@ public class BoardTest {
     public void hasWon_Row_AtEnd() throws Exception {
         for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
             for (int j = 0; j < NUMBER_OF_ROWS - 1; j++) {
-                board.put(i, i + j % 2 == 0 ? RED : YELLOW);
+                board.put(i, (i + j) % 2 == 0 ? RED : YELLOW);
             }
         }
 
@@ -238,6 +238,11 @@ public class BoardTest {
         board.put(2, RED);
 
         assertThat(board.hasWon()).isTrue();
+    }
+
+    @Test
+    public void doNotAllowOutOfTurn() throws Exception {
+        assertThatCode(() -> board.put(0, YELLOW)).isInstanceOf(IllegalArgumentException.class);
     }
 
     private void fillColumn(Board board, int column) {
