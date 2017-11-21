@@ -93,23 +93,19 @@ public class Board {
 
     }
 
-    private boolean checkHorizontal(Colour colourToCheck) { // TODO convert to using streams
-        int counter = 0;
+    private boolean checkHorizontal(Colour colourToCheck) {
+        OptionalInt longestHorizontalSequence = IntStream.range(0, NUMBER_OF_ROWS)
+                .mapToObj(this::getRow)
+                .mapToInt(row -> SequenceFinder.findLongestSequence(row, colourToCheck))
+                .max();
 
-        for (int i = 0; i < NUMBER_OF_ROWS; i++) {
-            for (List<Colour> colours : content) {
-                if (colours.size() > i && colours.get(i) == colourToCheck) {
-                    counter++;
-                } else {
-                    counter = 0;
-                }
-                if (counter == 4) {
-                    return true;
-                }
-            }
-        }
+        return longestHorizontalSequence.getAsInt() >= 4;
+    }
 
-        return false;
+    private List<Optional<Colour>> getRow(int row) {
+        return IntStream.range(0, NUMBER_OF_COLUMNS)
+                .mapToObj(col -> getColourAt(col, row))
+                .collect(toList());
     }
 
     private boolean checkVertical(Colour colourToCheck) {
@@ -127,7 +123,7 @@ public class Board {
                 .mapToInt(diagonal -> SequenceFinder.findLongestSequence(diagonal, colourToCheck))
                 .max();
 
-        return longestDiagonalSequence.isPresent() && longestDiagonalSequence.getAsInt() >= 4;
+        return longestDiagonalSequence.getAsInt() >= 4;
     }
 
     private List<Optional<Colour>> getNorthEastDiagonal(int offset) {
@@ -144,5 +140,19 @@ public class Board {
         return colours.stream()
                 .map(Optional::of)
                 .collect(toList());
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder();
+
+        for (int row = NUMBER_OF_ROWS - 1; row >= 0; row--) {
+            for (int col = 0; col < NUMBER_OF_COLUMNS; col++) {
+                string.append(getColourAt(col, row).orElse(Colour.NONE)).append(" ");
+            }
+            string.append("\r\n");
+        }
+
+        return string.toString();
     }
 }
